@@ -1,7 +1,16 @@
+import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { TAB, defaultData } from "../views/App";
+import { randomSpecificString } from "../helper/stringFunctions";
 
 function Finish({ setActiveTab, deliveryData, setDeliveryData }) {
+  const [orderId, setOrderId] = useState("");
+
+  useEffect(() => {
+    const result = randomSpecificString(5, "23456789abcdefghijkmnopqrstuvwxyzABCDEFGHIJKLMNPQRSTUVWXYZ")
+    setOrderId(result);
+  }, [])
+
   const handleBackClicked = () => {
     setActiveTab(TAB.DELIVERY);
     localStorage.setItem("activeTab", TAB.DELIVERY);
@@ -32,7 +41,7 @@ function Finish({ setActiveTab, deliveryData, setDeliveryData }) {
           </div>
           <div className="order-box">
             <div className="orderID">
-              <span>Order ID:</span>
+              <span>Order ID: {orderId}</span>
             </div>
             <div className="description">
               <span>Your order will be delivered {dayComputed()} with {deliveryData.payment.courier}</span>
