@@ -1,83 +1,37 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { defaultData } from "../views/App";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-function Delivery({ deliveryData, setDeliveryData }) {
-  const { register, handleSubmit, trigger, watch, setValue, formState: { errors, isValid } } = useForm();
+function Delivery({ deliveryData, setDeliveryData, setIsValid }) {
+  const { register, handleSubmit, trigger, watch, setValue, formState: { errors } } = useForm();
 
-  // only execute once on first mount / load
   useEffect(() => {
-    let deliverData = {};
-
-    if (localStorage.getItem("deliveryData")) {
-      deliverData = {...JSON.parse(localStorage.getItem("deliveryData"))};
-    } else {
-      deliverData = defaultData;
-    }
-
-    setValue("email", deliverData.delivery.email);
-    setValue("phone", deliverData.delivery.phone);
-    setValue("address", deliverData.delivery.address);
-    setValue("isDropshipping", deliverData.delivery.isDropshipping);
-    setValue("dropshippingName", deliverData.delivery.dropshippingName);
-    setValue("dropshippingPhone", deliverData.delivery.dropshippingPhone);
+    setValue("email", deliveryData.delivery.email);
+    setValue("phone", deliveryData.delivery.phone);
+    setValue("address", deliveryData.delivery.address);
+    setValue("isDropshipping", deliveryData.delivery.isDropshipping);
+    setValue("dropshippingName", deliveryData.delivery.dropshippingName);
+    setValue("dropshippingPhone", deliveryData.delivery.dropshippingPhone);
     trigger();
-
-    const updateData = { 
-      ...deliverData,
-      delivery: {
-        ...deliverData.delivery,
-        email: watch("email"),
-        phone: watch("phone"),
-        address: watch("address"),
-        isDropshipping: watch("isDropshipping"),
-        dropshippingName: watch("dropshippingName"),
-        dropshippingPhone: watch("dropshippingPhone"),
-      }
-    }
-    
-    setDeliveryData(updateData);
-    localStorage.setItem("deliveryData", JSON.stringify(updateData) );
-
-  }, [setValue, trigger, watch, setDeliveryData])
-
-  // execute everytime when there is an update to update the localstorage
-  useEffect(() => {
-    let deliverData = {};
-
-    if (localStorage.getItem("deliveryData")) {
-      deliverData = {...JSON.parse(localStorage.getItem("deliveryData"))};
-    } else {
-      deliverData = defaultData;
-    }
-    
-    const updateData = { 
-      ...deliverData,
-      delivery: {
-        ...deliverData.delivery,
-        email: watch("email"),
-        phone: watch("phone"),
-        address: watch("address"),
-        isDropshipping: watch("isDropshipping"),
-        dropshippingName: watch("dropshippingName"),
-        dropshippingPhone: watch("dropshippingPhone"),
-      }
-    }
-
-    localStorage.setItem("deliveryData", JSON.stringify(updateData) );
-  });
+  }, [setValue, trigger, deliveryData])
 
   const onSubmit = data => console.log("data: ", data);
   
   const onErrors = errors => console.log("Errors: ", errors);
 
-  const onUpdate = (e) => {
+  const onUpdate = async (e) => {
     const target = e.target;
     const name = target.name;
     const value = target.value;
 
     setValue(name, value);
-    trigger(name);
+
+    let result;
+    if (watch("isDropshipping")) {
+      result = await trigger(["email", "phone", "address", "dropshippingName", "dropshippingPhone"]);
+    } else {
+      result = await trigger(["email", "phone", "address"]);
+    }
     
     const updateData = { 
       ...deliveryData,
@@ -88,9 +42,11 @@ function Delivery({ deliveryData, setDeliveryData }) {
     }
 
     setDeliveryData(updateData);
+    setIsValid(result);
+    localStorage.setItem("deliveryData", JSON.stringify(updateData) );
   }
 
-  const fieldChange = (e) => {
+  const fieldChange = async (e) => {
     const target = e.target
     const value = target.type === 'checkbox' ? target.checked : target.value
 
@@ -99,6 +55,13 @@ function Delivery({ deliveryData, setDeliveryData }) {
     if (value === false) {
       setValue("dropshippingName", "");
       setValue("dropshippingPhone", "");
+    }
+
+    let result;
+    if (watch("isDropshipping")) {
+      result = await trigger(["email", "phone", "address", "dropshippingName", "dropshippingPhone"]);
+    } else {
+      result = await trigger(["email", "phone", "address"]);
     }
 
     const updateData = { 
@@ -112,14 +75,17 @@ function Delivery({ deliveryData, setDeliveryData }) {
     }
 
     setDeliveryData(updateData);
+    setIsValid(result);
+    localStorage.setItem("deliveryData", JSON.stringify(updateData) );
   }
 
   return (
     <div className="main-content">
       <form className="form-box" onSubmit={handleSubmit(onSubmit, onErrors)}>
         <div className="delivery-container">
-          <div>
-            <div>Delivery details</div>
+          <div className="page-label">
+            <div className="text-label">Delivery details</div>
+            <div className="underline-label"></div>
           </div>
           <div className={`input-box ${errors.email ? "error" : "valid"} ${watch("email") ? "filled" : ""}`}>
             <input 
@@ -130,7 +96,9 @@ function Delivery({ deliveryData, setDeliveryData }) {
               })} 
               onChange={e => onUpdate(e)}
             />
-            <span className="placeholder">Email</span>
+            <span className={`placeholder ${errors.email ? "error" : "valid"} ${watch("email") ? "filled" : ""}`}>Email</span>
+            {errors.email && <span className="error-icon"><FontAwesomeIcon icon="fa-solid fa-times" /></span>}
+            {!errors.email && <span className="valid-icon"><FontAwesomeIcon icon="fa-solid fa-check" /></span>}
           </div>
           <div className={`input-box ${errors.phone ? "error" : "valid"} ${watch("phone") ? "filled" : ""}`}>
             <input 
@@ -141,7 +109,9 @@ function Delivery({ deliveryData, setDeliveryData }) {
               })} 
               onChange={e => onUpdate(e)}
             />
-            <span className="placeholder">Phone Number</span>
+            <span className={`placeholder ${errors.phone ? "error" : "valid"} ${watch("phone") ? "filled" : ""}`}>Phone Number</span>
+            {errors.phone && <span className="error-icon"><FontAwesomeIcon icon="fa-solid fa-times" /></span>}
+            {!errors.phone && <span className="valid-icon"><FontAwesomeIcon icon="fa-solid fa-check" /></span>}
           </div>
           <div className={`input-box ${errors.address ? "error" : "valid"} ${watch("address") ? "filled" : ""}`}>
             <textarea 
@@ -153,21 +123,24 @@ function Delivery({ deliveryData, setDeliveryData }) {
               })}
               onChange={e => onUpdate(e)}
             />
-            <span className="placeholder">Delivery Address</span>
+            <span className={`placeholder ${errors.address ? "error" : "valid"} ${watch("address") ? "filled" : ""}`}>Delivery Address</span>
+            {errors.address && <span className="error-icon"><FontAwesomeIcon icon="fa-solid fa-times" /></span>}
+            {!errors.address && <span className="valid-icon"><FontAwesomeIcon icon="fa-solid fa-check" /></span>}
           </div>
         </div>
         <div className="dropshipper-container">
-          <div>
+          <div className="check-box">
             <input 
               type="checkbox" 
               name="isDropshipping" 
               {...register("isDropshipping")}
               onChange={e => fieldChange(e)} 
             />
-            <span>Send as dropshipper</span>
+            <span className="text">Send as dropshipper</span>
           </div>
           <div className={`input-box ${watch("isDropshipping") ? errors.dropshippingName ? "error" : "valid" : ""} ${watch("dropshippingName") ? "filled" : ""}`}>
             <input 
+              style={{ background: "transparent" }}
               name="dropshippingName"
               {...register("dropshippingName", {
                 required: true,
@@ -175,20 +148,24 @@ function Delivery({ deliveryData, setDeliveryData }) {
               disabled={!watch("isDropshipping")}
               onChange={e => onUpdate(e)}
             />
-            <span className="placeholder">Dropshipper name</span>
+            <span className={`placeholder ${watch("isDropshipping") ? errors.dropshippingName ? "error" : "valid" : ""} ${watch("dropshippingName") ? "filled" : ""}`}>Dropshipper name</span>
+            {watch("isDropshipping") && errors.dropshippingName && <span className="error-icon"><FontAwesomeIcon icon="fa-solid fa-times" /></span>}
+            {watch("isDropshipping") && !errors.dropshippingName && <span className="valid-icon"><FontAwesomeIcon icon="fa-solid fa-check" /></span>}
           </div>
           <div className={`input-box ${watch("isDropshipping") ? errors.dropshippingPhone ? "error" : "valid" : ""} ${watch("dropshippingPhone") ? "filled" : ""}`}>
             <input 
+              style={{ background: "transparent" }}
               name="dropshippingPhone" 
               {...register("dropshippingPhone", {
                 required: true,
-                minLength: 6, 
-                maxLength: 20,
+                pattern: /^[0-9-+()]{6,20}$/g,
               })}
               disabled={!watch("isDropshipping")}
               onChange={e => onUpdate(e)}
             />
-            <span className="placeholder">Dropshipper phone number</span>
+            <span className={`placeholder ${watch("isDropshipping") ? errors.dropshippingPhone ? "error" : "valid" : ""} ${watch("dropshippingPhone") ? "filled" : ""}`}>Dropshipper phone number</span>
+            {watch("isDropshipping") && errors.dropshippingPhone && <span className="error-icon"><FontAwesomeIcon icon="fa-solid fa-times" /></span>}
+            {watch("isDropshipping") && !errors.dropshippingPhone && <span className="valid-icon"><FontAwesomeIcon icon="fa-solid fa-check" /></span>}
           </div>
         </div>
       </form>

@@ -27,6 +27,27 @@ body {
   height: inherit;
 }
 
+.page-label {
+  position: relative;
+  margin-bottom: 50px;
+
+  .text-label {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #FF8A00;
+    position: relative;
+    z-index: 1;
+  }
+
+  .underline-label {
+    height: 10px;
+    width: 80%;
+    background: #EBEBEB;
+    position: absolute;
+    bottom: 10px;
+  }
+}
+
 .wrapper {
   height: inherit;
   background: #FFFAE6;
@@ -36,7 +57,6 @@ body {
     min-height: 500px;
     min-width: 310px;
     max-width: 1240px;
-    // max-width: 1380px;
     background: #fff;
     margin: 0 auto;
     position: relative;
@@ -46,10 +66,6 @@ body {
       margin: 0 30px;
       display: inline-block;
       cursor: pointer;
-
-      // div {
-      //   cursor: pointer;
-      // }
     }
 
     main {
@@ -138,10 +154,6 @@ body {
   flex: 1;
   padding: 30px;
 
-  // .back-nav {
-  //   margin-bottom: 24px;
-  // }
-
   .form-box {
     display: flex;
     flex-wrap:wrap;
@@ -152,12 +164,21 @@ body {
       width: 48%;
     }
 
+    .dropshipper-container .check-box {
+      height: 52.11px;
+      padding-top: 20px;
+      margin-bottom: 50px;
+
+      .text {
+        font-weight: 900;
+      }
+    }
+
     .input-box {
       position: relative;
-      // display: inline-block;
       width: 100%;
       border: 1px solid #D9D9D9;
-      padding: 22px 12px 6px;
+      padding: 22px 32px 6px 12px;
       margin-bottom: 16px;
 
       &.error {
@@ -175,13 +196,12 @@ body {
       }
 
       input, textarea {
-        font-weight: 500;
+        font-weight: 900;
         font-size: 1rem;
         color: #495055;
         width: 100%;
         border: none;
         outline:none;
-        // background: beige;
       }
 
       textarea {
@@ -203,6 +223,31 @@ body {
         transform-origin: 0% 0%;
         background: none;
         pointer-events: none;
+
+        &.valid.filled {
+          color: #84E8B0;
+        }
+
+        &.error.filled {
+          color: #FF8A00;
+        }
+      }
+
+      span.valid-icon,
+      span.error-icon {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-weight: 900;
+      }
+
+      span.valid-icon {
+        color: #84E8B0;
+      }
+
+      span.error-icon {
+        color: #FF8A00;
       }
 
       input:focus + span.placeholder, 
@@ -210,11 +255,99 @@ body {
         transform: scale(0.7) translate(5px, -12px);
         font-weight: 900;
       }
+    }
+  }
+}
 
-      // textarea:focus + span.placeholder {
-      //   transform: scale(0.7) translate(5px, -12px);
-      //   font-weight: 900;
-      // }
+// Payment
+.payment-container {
+  .page-label {
+    margin-bottom: 30px;
+
+    .underline-label {
+      max-width: 250px;
+    }
+  }
+
+  .section-content {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 60px;
+
+    .check-box {
+      margin-right: 16px;
+      flex-basis: 20%;
+      min-width: 160px;
+      border: 2px solid #EBEBEB;
+      padding: 8px 14px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      margin-bottom: 12px;
+      min-height: 65.5px;
+
+      &.active {
+        border-color: #49D786;
+        background: #E6F9EF;
+      }
+
+      .content {  
+        width: 100%;
+
+        .text {
+          font-size: 0.9rem;
+          margin-bottom: -4px;
+
+          &.only {
+            font-size: 1rem;
+          }
+        }
+      }
+
+      .check-icon {
+        color: #49D786;
+      }
+    }
+  }
+}
+
+// Finish
+.finish-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+
+  .finish-box {
+    width: 35%;
+    min-width: 179.89px;
+  
+    .page-label {
+      margin-bottom: 20px;
+
+      .underline-label {
+        width: 90%;
+      }
+    }
+
+    .order-box {
+      margin-bottom: 30px;
+
+      .orderID {
+        font-weight: 700;
+        font-size: 0.8rem;
+      }
+
+      .description {
+        font-size: 0.9rem;
+      }
+    }
+
+    .back-home {
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 700;
     }
   }
 }
@@ -234,9 +367,66 @@ body {
     justify-content: space-between;
     min-height: inherit;
 
+    .top-summary {
+      .top-label {
+        font-size: 1.6rem;
+        font-weight: 900;
+        color: #FF8A00;
+      }
+
+      .bottom-label {
+        font-size: 0.9rem;
+      }
+    }
+
+    .delivery-estimation {
+      margin: 16px 0;
+    }
+
+    .delivery-estimation,
+    .payment-method {
+      .divider {
+        height: 2px;
+        background: #EBEBEB;
+        width: 35%;
+        margin-bottom: 16px
+      }
+
+      .top-text {
+        font-weight: 700;
+      }
+
+      .bottom-text {
+        font-weight: 700;
+        color: #49D786;
+
+        .courier {
+          font-size: 1.1rem;
+        }
+      }
+    }
+
     .cost-box {
       display: flex;
       justify-content: space-between;
+
+      .courier {
+        font-weight: 700;
+      }
+
+      .cost {
+        font-weight: 900;
+      }
+
+      &.total {
+        margin: 16px 0;
+
+        .total {
+          font-size: 1.4rem;
+          font-weight: 900;
+          color: #FF8A00;
+        }
+      }
 
       button {
         width: 100%;
@@ -253,7 +443,37 @@ body {
   }
 }
 
+@media (max-width: 1065px) {
+  .page-label {
+    .text-label {
+      font-size: 1.5rem;
+    }
+  
+    .underline-label {
+      bottom: 5px;
+    }
+  }
+
+  .main-content {
+    .form-box {
+      .dropshipper-container .check-box {
+        height: 39.08px;
+      }
+    }
+  }
+}
+
 @media (max-width: 908px) {
+  .page-label {
+    .text-label {
+      font-size: 1.6rem;
+    }
+  
+    .underline-label {
+      bottom: 7px;
+    }
+  }
+
   .wrapper{
     .container {
       main {
@@ -267,6 +487,14 @@ body {
     .summary-box {
       border-left: none;
       padding: 0 30px;
+
+      // .top-summary {
+      //   .top-label {
+      //     font-size: 1.4rem;
+      //     font-weight: 900;
+      //     color: #FF8A00;
+      //   }
+      // }
     }
   }
 }
@@ -297,14 +525,14 @@ body {
   // Delivery
   .main-content {
     .form-box {
+      .dropshipper-container .check-box {
+        margin-bottom: 30px;
+      }
+
       .delivery-container,
       .dropshipper-container {
         width: 100%;
       }
-
-      // .input-box {
-      //   width: 100%;
-      // }
     }
   }
 }

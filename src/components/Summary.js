@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
-import { TAB, defaultData } from "../views/App";
+import { TAB } from "../views/App";
+import { formattedCurrency } from "../helper/numberFunctions";
 
-function Summary({ activeTab, setActiveTab, deliveryData }) {
+function Summary({ activeTab, setActiveTab, deliveryData, isValid }) {
   const shipmentFee = () => {
-    if (activeTab === TAB.PAYMENT) {
+    if (activeTab !== TAB.DELIVERY) {
       if (deliveryData.payment.courier === "GO-SEND") {
         return deliveryData.payment.gopayFee;
       } else if (deliveryData.payment.courier === "JNE") {
@@ -20,7 +20,7 @@ function Summary({ activeTab, setActiveTab, deliveryData }) {
     if (deliveryData.delivery.isDropshipping) {
       total += deliveryData.delivery.dropshippingFee;
     }
-    if (activeTab === TAB.PAYMENT) {
+    if (activeTab !== TAB.DELIVERY) {
       if (deliveryData.payment.courier === "GO-SEND") {
         total += deliveryData.payment.gopayFee;
       } else if (deliveryData.payment.courier === "JNE") {
@@ -34,45 +34,96 @@ function Summary({ activeTab, setActiveTab, deliveryData }) {
 
   const handleTabClicked = () => {
     if (activeTab === TAB.DELIVERY) {
-      setActiveTab(TAB.PAYMENT);
-      localStorage.setItem("activeTab", TAB.PAYMENT);
+      if (isValid) {
+        setActiveTab(TAB.PAYMENT);
+        localStorage.setItem("activeTab", TAB.PAYMENT);
+      }
     } else {
       setActiveTab(TAB.FINISH);
       localStorage.setItem("activeTab", TAB.FINISH);
     }
   };
 
+  const formatCurrency = (val) => {
+    if (!val) return formattedCurrency.format(0);
+      return formattedCurrency.format(val);
+  };
+
+  const buttonText = () => {
+    if (activeTab === TAB.DELIVERY) {
+      return "Continue to Payment";
+    } else {
+      return `Pay with ${deliveryData.payment.payType}`;
+    }
+  };
+
+  const dayComputed = () => {
+    if (deliveryData.payment.courier === "GO-SEND") {
+      return "today";
+    } else if (deliveryData.payment.courier === "JNE") {
+      return "2 days";
+    } else if (deliveryData.payment.courier === "Personal Courier") {
+      return "1 day";
+    }
+
+    return "";
+  };
+
   return (
     <div className="summary-content">
       <div className="summary-box">
-        <div className="top-summary">
-          <div>Summary</div>
-          <div>10 items purchased</div>
+        <div>
+          <div className="top-summary">
+            <div className="top-label">Summary</div>
+            <div className="bottom-label">10 items purchased</div>
+          </div>
+          {activeTab !== TAB.DELIVERY && 
+            <div className="delivery-estimation">
+              <div className="divider"></div>
+              <div className="top-text">Delivery estimation</div>
+              <div className="bottom-text">
+                <span>{ dayComputed() + " by " }</span>
+                <span className="courier">{ deliveryData.payment.courier}</span>
+              </div>
+            </div>
+          }
+          {activeTab === TAB.FINISH && 
+            <div className="payment-method">
+              <div className="divider"></div>
+              <div className="top-text">Payment method</div>
+              <div className="bottom-text">
+                <span className="pay-type">{ deliveryData.payment.payType}</span>
+              </div>
+            </div>
+          }
         </div>
         <div className="bottom-summary">
           <div className="cost-box">
             <span className="text-label">Cost of goods</span>
-            <span className="text-content">{ deliveryData.delivery.costOfGoods }</span>
+            <span className="text-content cost">{ deliveryData.delivery.costOfGoods.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }</span>
           </div>
           { deliveryData.delivery.isDropshipping && 
             <div className="cost-box">
               <span className="text-label">Dropshipping Fee</span>
-              <span className="text-content">{ deliveryData.delivery.dropshippingFee }</span>
+              <span className="text-content cost">{ formatCurrency(deliveryData.delivery.dropshippingFee).replace(/[$]/g, '') }</span>
             </div>
           }
-          { activeTab === TAB.PAYMENT && 
+          { activeTab !== TAB.DELIVERY && 
             <div className="cost-box">
-              <span className="text-label">{`${deliveryData.payment.courier} ${deliveryData.payment.courier === "Personal Courier" ? "" : " shipment"}`}</span>
-              <span className="text-content">{ shipmentFee() }</span>
+              <div>
+                <span className="text-label courier">{`${deliveryData.payment.courier}`}</span>
+                <span>{deliveryData.payment.courier === "Personal Courier" ? "" : " shipment"}</span>
+              </div>
+              <span className="text-content cost">{ formatCurrency(shipmentFee()).replace(/[$]/g, '') }</span>
             </div>
           }
-          <div className="cost-box">
-            <span className="text-label">Total</span>
-            <span className="text-content">{ totalCost() }</span>
+          <div className="cost-box total">
+            <span className="text-label total">Total</span>
+            <span className="text-content total">{ formatCurrency(totalCost()).replace(/[$]/g, '') }</span>
           </div>
           {activeTab !== TAB.FINISH && 
             <div className="cost-box">
-            <button onClick={handleTabClicked}>Continue Payment</button>
+            <button onClick={handleTabClicked}>{ buttonText() }</button>
           </div>
           }
         </div>
